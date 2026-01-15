@@ -1,0 +1,100 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Premium Cohesive Color Palette - Elegant & Sophisticated */
+  --rose-gold: #D4A574;
+  --rose-gold-light: #E8C9A0;
+  --rose-gold-dark: #B8905A;
+  --dusty-rose: #D4A5A5;
+  --dusty-rose-light: #F0D4D4;
+  --dusty-rose-dark: #C49595;
+  --blush-pink: #F5E6E6;
+  --blush-pink-light: #FAF0F0;
+  --warm-cream: #F9F6F2;
+  --warm-cream-dark: #F5F1EB;
+  --soft-peach: #F5E8DD;
+  --soft-mauve: #E8DDE8;
+  --sage-green: #D4E8D4;
+  --sage-green-light: #E8F0E8;
+  
+  /* Accent Colors */
+  --champagne: #F5E6D3;
+  --champagne-light: #FAF0E6;
+  --warm-beige: #F0E8E0;
+  
+  /* Text Colors */
+  --text-dark: #3D3D3D;
+  --text-medium: #6B6B6B;
+  --text-light: #9B9B9B;
+  
+  /* Backgrounds */
+  --white: #FFFFFF;
+  --ivory: #FFFEFB;
+  --off-white: #FDFCF9;
+  
+  /* Shadows */
+  --shadow-soft: rgba(212, 165, 116, 0.1);
+  --shadow-medium: rgba(212, 165, 116, 0.15);
+  --shadow-strong: rgba(212, 165, 116, 0.2);
+  --shadow-rose: rgba(212, 165, 165, 0.15);
+  
+  /* Legacy compatibility */
+  --premium-gold: var(--rose-gold);
+  --premium-gold-light: var(--rose-gold-light);
+  --premium-gold-dark: var(--rose-gold-dark);
+  --premium-rose: var(--dusty-rose);
+  --premium-rose-light: var(--dusty-rose-light);
+  --premium-rose-dark: var(--dusty-rose-dark);
+  --soft-pink: var(--blush-pink);
+  --soft-pink-light: var(--blush-pink-light);
+  --premium-cream: var(--warm-cream);
+  --premium-cream-dark: var(--warm-cream-dark);
+  --premium-ivory: var(--ivory);
+  --premium-navy: var(--text-dark);
+  --primary-pink: var(--dusty-rose);
+  --soft-lavender: var(--soft-mauve);
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-dark);
+  background: var(--warm-cream);
+  min-height: 100vh;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure touch-friendly targets on mobile */
+@media (max-width: 768px) {
+  button,
+  .btn,
+  a,
+  input[type="submit"],
+  input[type="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Fredoka', sans-serif;
+  color: var(--text-dark);
+}
+
+button {
+  font-family: 'Poppins', sans-serif;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+input, textarea, select {
+  font-family: 'Poppins', sans-serif;
+}
+

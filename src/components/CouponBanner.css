@@ -1,0 +1,140 @@
+.coupon-banner {
+  background: linear-gradient(135deg, var(--rose-gold) 0%, var(--dusty-rose) 100%);
+  color: var(--white);
+  padding: 0.75rem 0;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 2px 10px var(--shadow-rose);
+  z-index: 999;
+}
+
+.coupon-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+.coupon-banner-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.coupon-icon {
+  font-size: 1.2rem;
+}
+
+.coupon-slider {
+  display: flex;
+  gap: 2rem;
+  overflow: hidden;
+  flex: 1;
+  position: relative;
+}
+
+.coupon-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  white-space: nowrap;
+  animation: scroll 15s linear infinite;
+  padding: 0.25rem 1rem;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+}
+
+.coupon-code {
+  font-weight: 700;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+  font-size: 0.9rem;
+}
+
+.coupon-discount {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+@media (max-width: 768px) {
+  .coupon-banner {
+    padding: 0.6rem 0;
+  }
+
+  .coupon-banner-content {
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .coupon-banner-text {
+    font-size: 0.85rem;
+  }
+
+  .coupon-icon {
+    font-size: 1rem;
+  }
+
+  .coupon-slider {
+    gap: 1rem;
+  }
+
+  .coupon-item {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    gap: 0.5rem;
+  }
+
+  .coupon-code {
+    font-size: 0.8rem;
+  }
+
+  .coupon-discount {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .coupon-banner {
+    padding: 0.5rem 0;
+  }
+
+  .coupon-banner-content {
+    padding: 0.4rem 0.75rem;
+    gap: 0.4rem;
+  }
+
+  .coupon-banner-text {
+    font-size: 0.75rem;
+  }
+
+  .coupon-item {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .coupon-code {
+    font-size: 0.75rem;
+  }
+
+  .coupon-discount {
+    font-size: 0.7rem;
+  }
+}
+
