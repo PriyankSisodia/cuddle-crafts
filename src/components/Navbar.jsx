@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { getCartItems } from '../utils/storage'
 import './Navbar.css'
 
-function Navbar() {
+function Navbar({ onCartClick }) {
   const [cartCount, setCartCount] = useState(0)
 
   useEffect(() => {
@@ -27,10 +27,10 @@ function Navbar() {
         <div className="navbar-links">
           <Link to="/" className="nav-link">Home</Link>
           <Link to="/products" className="nav-link">Products</Link>
-          <Link to="/checkout" className="nav-link cart-link">
+          <button onClick={onCartClick} className="nav-link cart-link">
             <span>Cart</span>
             {cartCount > 0 && <span className="cart-badge">{cartCount}</span>}
-          </Link>
+          </button>
         </div>
       </div>
     </nav>

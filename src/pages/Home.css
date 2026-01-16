@@ -137,39 +137,96 @@
 .floating-toy {
   position: absolute;
   font-size: 5rem;
-  animation: float 3s ease-in-out infinite;
+  will-change: transform;
+  animation: float 4s ease-in-out infinite;
+  transform-origin: center center;
 }
 
 .toy-1 {
   top: 10%;
   left: 10%;
   animation-delay: 0s;
+  animation-name: float-1;
 }
 
 .toy-2 {
   top: 30%;
   right: 15%;
   animation-delay: 0.5s;
+  animation-name: float-2;
 }
 
 .toy-3 {
   bottom: 20%;
   left: 20%;
   animation-delay: 1s;
+  animation-name: float-3;
 }
 
 .toy-4 {
   bottom: 10%;
   right: 10%;
   animation-delay: 1.5s;
+  animation-name: float-4;
 }
 
-@keyframes float {
+@keyframes float-1 {
   0%, 100% {
-    transform: translateY(0px) rotate(0deg);
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(5px, -15px) rotate(3deg);
   }
   50% {
-    transform: translateY(-20px) rotate(5deg);
+    transform: translate(0, -20px) rotate(0deg);
+  }
+  75% {
+    transform: translate(-5px, -15px) rotate(-3deg);
+  }
+}
+
+@keyframes float-2 {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(-8px, -18px) rotate(-4deg);
+  }
+  50% {
+    transform: translate(0, -25px) rotate(0deg);
+  }
+  75% {
+    transform: translate(8px, -18px) rotate(4deg);
+  }
+}
+
+@keyframes float-3 {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(6px, -12px) rotate(2deg);
+  }
+  50% {
+    transform: translate(0, -18px) rotate(0deg);
+  }
+  75% {
+    transform: translate(-6px, -12px) rotate(-2deg);
+  }
+}
+
+@keyframes float-4 {
+  0%, 100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(-7px, -20px) rotate(-3deg);
+  }
+  50% {
+    transform: translate(0, -22px) rotate(0deg);
+  }
+  75% {
+    transform: translate(7px, -20px) rotate(3deg);
   }
 }
 
@@ -292,6 +349,35 @@
   opacity: 0.3;
 }
 
+.exclusive-product-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 15px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}
+
+.exclusive-product-badge-best-seller {
+  background: linear-gradient(135deg, var(--rose-gold), var(--dusty-rose));
+  color: var(--white);
+}
+
+.exclusive-product-badge-new {
+  background: linear-gradient(135deg, #4CAF50, #45a049);
+  color: var(--white);
+}
+
+.exclusive-product-badge-sale {
+  background: linear-gradient(135deg, #F44336, #d32f2f);
+  color: var(--white);
+}
+
 .exclusive-price-badge {
   position: absolute;
   top: 1rem;
@@ -305,6 +391,7 @@
   box-shadow: 0 4px 15px var(--shadow-rose);
   letter-spacing: 0.5px;
   border: none;
+  z-index: 2;
 }
 
 .exclusive-product-content {

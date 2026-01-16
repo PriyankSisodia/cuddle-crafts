@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router-dom'
-import { getProductById, isAdminLoggedIn, addToCart, getReviews, addReview } from '../utils/storage'
+import { getProductById, getProducts, isAdminLoggedIn, addToCart, getReviews, addReview } from '../utils/storage'
+import Breadcrumbs from '../components/Breadcrumbs'
+import ImageLightbox from '../components/ImageLightbox'
 import './ProductDetail.css'
 
-function ProductDetail() {
+function ProductDetail({ onAddToCart }) {
   const { id } = useParams()
   const navigate = useNavigate()
   const [product, setProduct] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [reviews, setReviews] = useState([])
+  const [recommendedProducts, setRecommendedProducts] = useState([])
   const [showReviewForm, setShowReviewForm] = useState(false)
+  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxImage, setLightboxImage] = useState(null)
   const [reviewForm, setReviewForm] = useState({
     customerName: '',
     rating: 5,
@@ -21,6 +26,14 @@ function ProductDetail() {
     const loadProduct = () => {
       const foundProduct = getProductById(id)
       setProduct(foundProduct)
+      // Load recommended products (exclude current product)
+      if (foundProduct) {
+        const allProducts = getProducts()
+        const recommended = allProducts
+          .filter(p => p.id !== id)
+          .slice(0, 4) // Show 4 recommended products
+        setRecommendedProducts(recommended)
+      }
     }
     const loadReviews = () => {
       const productReviews = getReviews(id)
@@ -41,9 +54,9 @@ function ProductDetail() {
     return () => clearInterval(interval)
   }, [id])
 
-  const handleBuyNow = () => {
+  const handleAddToCart = () => {
     addToCart(product.id, 1)
-    navigate('/checkout')
+    if (onAddToCart) onAddToCart()
   }
 
   const handleReviewSubmit = (e) => {
@@ -80,9 +93,19 @@ function ProductDetail() {
 
   return (
     <div className="product-detail-page">
+      <Breadcrumbs />
       <Link to="/products" className="back-link">
         ← Back to Products
       </Link>
+      
+      <ImageLightbox 
+        image={lightboxImage} 
+        isOpen={lightboxOpen} 
+        onClose={() => {
+          setLightboxOpen(false)
+          setLightboxImage(null)
+        }} 
+      />
       
       <div className="product-detail-container">
         <div className="product-detail-image-section">
@@ -104,7 +127,14 @@ function ProductDetail() {
             
             return (
               <>
-                <div className="product-detail-image">
+                <div 
+                  className="product-detail-image"
+                  onClick={() => {
+                    setLightboxImage(images[selectedImageIndex])
+                    setLightboxOpen(true)
+                  }}
+                  style={{ cursor: 'zoom-in' }}
+                >
                   <img src={images[selectedImageIndex]} alt={`${product.name} - Image ${selectedImageIndex + 1}`} />
                 </div>
                 {images.length > 1 && (
@@ -175,17 +205,6 @@ function ProductDetail() {
             )}
           </div>
           
-          {product.features && product.features.length > 0 && (
-            <div className="product-detail-section">
-              <h3>Features</h3>
-              <ul className="features-list">
-                {product.features.map((feature, index) => (
-                  <li key={index}>{feature}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          
           {product.careInstructions && (
             <div className="product-detail-section">
               <h3>Care Instructions</h3>
@@ -194,10 +213,7 @@ function ProductDetail() {
           )}
           
           <div className="product-detail-actions">
-            <button onClick={handleBuyNow} className="btn btn-primary">
-              Buy Now
-            </button>
-            <button onClick={() => addToCart(product.id, 1)} className="btn btn-secondary">
+            <button onClick={handleAddToCart} className="btn btn-primary">
               Add to Cart
             </button>
             <Link to="/products" className="btn btn-secondary">
@@ -290,6 +306,37 @@ function ProductDetail() {
           </div>
         </div>
       </div>
+
+      {/* Recommended Toys Section */}
+      {recommendedProducts.length > 0 && (
+        <div className="recommended-products-section">
+          <h2 className="recommended-title">Recommended Toys</h2>
+          <div className="recommended-products-grid">
+            {recommendedProducts.map(recProduct => {
+              const firstImage = recProduct.images && Array.isArray(recProduct.images) && recProduct.images.length > 0
+                ? recProduct.images[0]
+                : (recProduct.image || null)
+              return (
+                <Link key={recProduct.id} to={`/product/${recProduct.id}`} className="recommended-product-card">
+                  <div className="recommended-product-image">
+                    {firstImage ? (
+                      <img src={firstImage} alt={recProduct.name} />
+                    ) : (
+                      <div className="recommended-placeholder">🧸</div>
+                    )}
+                  </div>
+                  <div className="recommended-product-info">
+                    <h3>{recProduct.name}</h3>
+                    {recProduct.price && (
+                      <p className="recommended-price">${recProduct.price.toFixed(2)}</p>
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { getCartItems, clearCart, getCoupons, getCouponByCode, addOrder } from '../utils/storage'
+import { useNavigate, Link } from 'react-router-dom'
+import { getCartItems, clearCart, getCoupons, getCouponByCode, addOrder, updateCartItem, removeFromCart } from '../utils/storage'
 import './Checkout.css'
 
 function Checkout() {
@@ -26,11 +26,17 @@ function Checkout() {
   const [appliedCoupon, setAppliedCoupon] = useState(null)
   const [errors, setErrors] = useState({})
 
-  useEffect(() => {
+  const loadCartItems = () => {
     const items = getCartItems()
     setCartItems(items)
+  }
+
+  useEffect(() => {
+    loadCartItems()
     const activeCoupons = getCoupons().filter(c => c.isActive)
     setCoupons(activeCoupons)
+    const interval = setInterval(loadCartItems, 1000)
+    return () => clearInterval(interval)
   }, [])
 
   const subtotal = cartItems.reduce((sum, item) => sum + (item.product.price || 0) * item.quantity, 0)
@@ -78,6 +84,20 @@ function Checkout() {
   const handleRemoveCoupon = () => {
     setAppliedCoupon(null)
     setFormData(prev => ({ ...prev, couponCode: '' }))
+  }
+
+  const handleQuantityChange = (productId, newQuantity) => {
+    if (newQuantity <= 0) {
+      handleRemoveItem(productId)
+      return
+    }
+    updateCartItem(productId, newQuantity)
+    loadCartItems()
+  }
+
+  const handleRemoveItem = (productId) => {
+    removeFromCart(productId)
+    loadCartItems()
   }
 
   const validateForm = () => {
@@ -412,17 +432,62 @@ function Checkout() {
           <div className="checkout-summary">
             <h2>Order Summary</h2>
             <div className="summary-items">
-              {cartItems.map(item => (
-                <div key={item.productId} className="summary-item">
-                  <div className="summary-item-info">
-                    <h4>{item.product.name}</h4>
-                    <p>Quantity: {item.quantity}</p>
+              {cartItems.map(item => {
+                const firstImage = item.product.images && Array.isArray(item.product.images) && item.product.images.length > 0
+                  ? item.product.images[0]
+                  : (item.product.image || null)
+                return (
+                  <div key={item.productId} className="summary-item">
+                    <div className="summary-item-image">
+                      {firstImage ? (
+                        <img src={firstImage} alt={item.product.name} />
+                      ) : (
+                        <div className="summary-item-placeholder">🧸</div>
+                      )}
+                    </div>
+                    <div className="summary-item-details">
+                      <div className="summary-item-info">
+                        <Link to={`/product/${item.productId}`} className="summary-item-name">
+                          {item.product.name}
+                        </Link>
+                        <p className="summary-item-unit-price">${(item.product.price || 0).toFixed(2)} each</p>
+                      </div>
+                      <div className="summary-item-controls">
+                        <div className="quantity-controls">
+                          <button
+                            type="button"
+                            className="quantity-btn"
+                            onClick={() => handleQuantityChange(item.productId, item.quantity - 1)}
+                            aria-label="Decrease quantity"
+                          >
+                            −
+                          </button>
+                          <span className="quantity-display">{item.quantity}</span>
+                          <button
+                            type="button"
+                            className="quantity-btn"
+                            onClick={() => handleQuantityChange(item.productId, item.quantity + 1)}
+                            aria-label="Increase quantity"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <button
+                          type="button"
+                          className="remove-item-btn"
+                          onClick={() => handleRemoveItem(item.productId)}
+                          aria-label="Remove item"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                    <div className="summary-item-price">
+                      ${((item.product.price || 0) * item.quantity).toFixed(2)}
+                    </div>
                   </div>
-                  <div className="summary-item-price">
-                    ${((item.product.price || 0) * item.quantity).toFixed(2)}
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
             <div className="summary-totals">
               <div className="summary-row">

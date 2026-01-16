@@ -4,7 +4,7 @@ import { getProducts, getCoupons, addToCart } from '../utils/storage'
 import CouponBanner from '../components/CouponBanner'
 import './Home.css'
 
-function Home() {
+function Home({ onAddToCart }) {
   const [products, setProducts] = useState([])
 
   useEffect(() => {
@@ -17,10 +17,10 @@ function Home() {
     return () => clearInterval(interval)
   }, [])
 
-  const handleBuyNow = (e, productId) => {
+  const handleAddToCart = (e, productId) => {
     e.preventDefault()
     addToCart(productId, 1)
-    window.location.href = '/checkout'
+    if (onAddToCart) onAddToCart()
   }
 
   return (
@@ -76,6 +76,13 @@ function Home() {
                           <span className="exclusive-placeholder-icon">🧸</span>
                         </div>
                       )}
+                      {product.badge && (
+                        <div className={`exclusive-product-badge exclusive-product-badge-${product.badge}`}>
+                          {product.badge === 'best-seller' ? 'Best Seller' : 
+                           product.badge === 'new' ? 'New' : 
+                           product.badge === 'sale' ? 'Sale' : product.badge}
+                        </div>
+                      )}
                       {product.price && (
                         <div className="exclusive-price-badge">
                           ${product.price}
@@ -90,8 +97,8 @@ function Home() {
                         </div>
                       )}
                       <div className="exclusive-product-actions">
-                        <button onClick={(e) => handleBuyNow(e, product.id)} className="btn-exclusive btn-buy">
-                          Buy Now
+                        <button onClick={(e) => handleAddToCart(e, product.id)} className="btn-exclusive btn-buy">
+                          Add to Cart
                         </button>
                         <Link to={`/product/${product.id}`} className="btn-exclusive btn-details">
                           View Details

@@ -1,5 +1,18 @@
 # Cuddle Crafts
 
+## 🚀 Quick Deploy
+
+Want to deploy this store for free? See [QUICK_START.md](./QUICK_START.md) for a 15-minute setup guide!
+
+**Free Hosting Options:**
+- Frontend: Vercel (free, unlimited)
+- Backend: Firebase (free tier)
+- **Total Cost: $0/month**
+
+---
+
+# Cuddle Crafts
+
 ## Coming Soon
 
 We are excited to announce that Cuddle Crafts will be launching soon. Our exclusive collection of premium handcrafted soft toys is currently being prepared for you.

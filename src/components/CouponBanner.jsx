@@ -24,6 +24,9 @@ function CouponBanner() {
 
   if (coupons.length === 0) return null
 
+  // Duplicate coupons for seamless infinite scroll
+  const duplicatedCoupons = [...coupons, ...coupons, ...coupons]
+
   return (
     <div className="coupon-banner">
       <div className="coupon-banner-content">
@@ -31,17 +34,19 @@ function CouponBanner() {
           <span className="coupon-icon">🎫</span>
           <span>Special Offers:</span>
         </div>
-        <div className="coupon-slider">
-          {coupons.map((coupon, index) => (
-            <div key={coupon.id} className="coupon-item" style={{ animationDelay: `${index * 3}s` }}>
-              <span className="coupon-code">{coupon.code}</span>
-              <span className="coupon-discount">
-                {coupon.discountType === 'percentage' 
-                  ? `${coupon.discountValue}% OFF` 
-                  : `$${coupon.discountValue} OFF`}
-              </span>
-            </div>
-          ))}
+        <div className="coupon-slider-wrapper">
+          <div className="coupon-slider">
+            {duplicatedCoupons.map((coupon, index) => (
+              <div key={`${coupon.id}-${index}`} className="coupon-item">
+                <span className="coupon-code">{coupon.code}</span>
+                <span className="coupon-discount">
+                  {coupon.discountType === 'percentage' 
+                    ? `${coupon.discountValue}% OFF` 
+                    : `$${coupon.discountValue} OFF`}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

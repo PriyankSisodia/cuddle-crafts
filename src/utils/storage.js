@@ -3,6 +3,7 @@
 const STORAGE_KEY = 'cuddle_crafts_products';
 const ORDERS_KEY = 'cuddle_crafts_orders';
 const COUPONS_KEY = 'cuddle_crafts_coupons';
+const SHIPPING_KEY = 'cuddle_crafts_shipping';
 const CART_KEY = 'cuddle_crafts_cart';
 const REVIEWS_KEY = 'cuddle_crafts_reviews';
 const ADMIN_AUTH_KEY = 'cuddle_crafts_admin_auth';
@@ -30,7 +31,8 @@ const SAMPLE_PRODUCTS = [
     features: ['Washable', 'Hypoallergenic', 'Handmade', 'CE Certified'],
     careInstructions: 'Machine wash cold, gentle cycle. Air dry. Do not bleach.',
     characterStory: 'Meet Barnaby, the gentle guardian of dreams. Born in a cozy forest cottage, Barnaby has spent years learning the art of comfort. With his warm embrace and soft fur, he\'s the perfect companion for bedtime adventures. Every night, he shares stories of magical forests and helps little ones drift into peaceful slumber. His kind eyes and gentle nature make him a trusted friend for life.',
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    badge: 'best-seller'
   },
   {
     id: 'sample-2',
@@ -49,7 +51,8 @@ const SAMPLE_PRODUCTS = [
     features: ['Eco-friendly', 'Washable', 'Soft & Safe', 'Perfect Gift'],
     careInstructions: 'Hand wash recommended. Air dry in shade.',
     characterStory: 'Luna the rabbit is a graceful explorer of moonlit gardens. With her silky white fur that glows in the starlight, she brings magic to every moment. Luna loves to hop through fields of wildflowers and dance under the stars. She teaches children about the beauty of nature and the wonder of nighttime adventures. Her gentle spirit and playful nature make her a beloved companion.',
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    badge: 'new'
   },
   {
     id: 'sample-3',
@@ -125,7 +128,8 @@ const SAMPLE_PRODUCTS = [
     features: ['Sparkly Design', 'Colorful', 'Washable', 'Magical Gift'],
     careInstructions: 'Hand wash recommended. Air dry to preserve sparkle.',
     characterStory: 'Stardust the unicorn lives in a realm of rainbows and dreams. With her shimmering rainbow mane and magical horn, she brings wonder and enchantment wherever she goes. Stardust can grant wishes, create rainbows, and make dreams come true. Her gentle magic teaches children about kindness, imagination, and believing in the impossible. Every day with Stardust is filled with sparkles and joy!',
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    badge: 'new'
   },
   {
     id: 'sample-7',
@@ -434,6 +438,120 @@ export const getCouponById = (id) => {
 export const getCouponByCode = (code) => {
   const coupons = getCoupons();
   return coupons.find(c => c.code.toLowerCase() === code.toLowerCase() && c.isActive);
+};
+
+// Shipping options management functions
+export const getShippingOptions = () => {
+  try {
+    const shipping = localStorage.getItem(SHIPPING_KEY);
+    if (!shipping) {
+      // Initialize with default shipping options
+      const defaultShipping = [
+        {
+          id: 'default-1',
+          name: 'Standard Shipping',
+          cost: 5.99,
+          estimatedDays: '5-7',
+          minOrderAmount: 0,
+          maxOrderAmount: null,
+          isActive: true,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'default-2',
+          name: 'Express Shipping',
+          cost: 12.99,
+          estimatedDays: '2-3',
+          minOrderAmount: 0,
+          maxOrderAmount: null,
+          isActive: true,
+          createdAt: new Date().toISOString()
+        },
+        {
+          id: 'default-3',
+          name: 'Free Shipping',
+          cost: 0,
+          estimatedDays: '7-10',
+          minOrderAmount: 50,
+          maxOrderAmount: null,
+          isActive: true,
+          createdAt: new Date().toISOString()
+        }
+      ];
+      saveShippingOptions(defaultShipping);
+      return defaultShipping;
+    }
+    return JSON.parse(shipping);
+  } catch (error) {
+    console.error('Error loading shipping options:', error);
+    return [];
+  }
+};
+
+export const saveShippingOptions = (shipping) => {
+  try {
+    localStorage.setItem(SHIPPING_KEY, JSON.stringify(shipping));
+    return true;
+  } catch (error) {
+    console.error('Error saving shipping options:', error);
+    return false;
+  }
+};
+
+export const addShippingOption = (shipping) => {
+  const shippingOptions = getShippingOptions();
+  const newShipping = {
+    ...shipping,
+    id: Date.now().toString(),
+    cost: parseFloat(shipping.cost) || 0,
+    minOrderAmount: shipping.minOrderAmount ? parseFloat(shipping.minOrderAmount) : null,
+    maxOrderAmount: shipping.maxOrderAmount ? parseFloat(shipping.maxOrderAmount) : null,
+    createdAt: new Date().toISOString(),
+    isActive: shipping.isActive !== undefined ? shipping.isActive : true
+  };
+  shippingOptions.push(newShipping);
+  saveShippingOptions(shippingOptions);
+  return newShipping;
+};
+
+export const updateShippingOption = (id, updatedShipping) => {
+  const shippingOptions = getShippingOptions();
+  const index = shippingOptions.findIndex(s => s.id === id);
+  if (index !== -1) {
+    shippingOptions[index] = {
+      ...shippingOptions[index],
+      ...updatedShipping,
+      cost: parseFloat(updatedShipping.cost) || shippingOptions[index].cost,
+      minOrderAmount: updatedShipping.minOrderAmount ? parseFloat(updatedShipping.minOrderAmount) : null,
+      maxOrderAmount: updatedShipping.maxOrderAmount ? parseFloat(updatedShipping.maxOrderAmount) : null,
+      updatedAt: new Date().toISOString()
+    };
+    saveShippingOptions(shippingOptions);
+    return shippingOptions[index];
+  }
+  return null;
+};
+
+export const deleteShippingOption = (id) => {
+  const shippingOptions = getShippingOptions();
+  const filtered = shippingOptions.filter(s => s.id !== id);
+  saveShippingOptions(filtered);
+  return filtered;
+};
+
+export const getShippingOptionById = (id) => {
+  const shippingOptions = getShippingOptions();
+  return shippingOptions.find(s => s.id === id);
+};
+
+export const getAvailableShippingOptions = (orderTotal = 0) => {
+  const shippingOptions = getShippingOptions();
+  return shippingOptions.filter(option => {
+    if (!option.isActive) return false;
+    if (option.minOrderAmount && orderTotal < option.minOrderAmount) return false;
+    if (option.maxOrderAmount && orderTotal > option.maxOrderAmount) return false;
+    return true;
+  });
 };
 
 // Cart management functions

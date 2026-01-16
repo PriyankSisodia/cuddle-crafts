@@ -4,6 +4,7 @@ import {
   getProducts, addProduct, updateProduct, deleteProduct,
   getOrders, addOrder, updateOrder, deleteOrder,
   getCoupons, addCoupon, updateCoupon, deleteCoupon,
+  getShippingOptions, addShippingOption, updateShippingOption, deleteShippingOption,
   isAdminLoggedIn, logoutAdmin, getAdminPassword, setAdminPassword 
 } from '../utils/storage'
 import AdminLogin from '../components/AdminLogin'
@@ -39,6 +40,13 @@ function Admin() {
     usageLimit: '', isActive: true
   })
   
+  // Shipping state
+  const [shippingOptions, setShippingOptions] = useState([])
+  const [editingShipping, setEditingShipping] = useState(null)
+  const [shippingFormData, setShippingFormData] = useState({
+    name: '', cost: '', estimatedDays: '', minOrderAmount: '', maxOrderAmount: '', isActive: true
+  })
+  
   const [showPasswordChange, setShowPasswordChange] = useState(false)
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -71,6 +79,7 @@ function Admin() {
     setProducts(getProducts())
     setOrders(getOrders())
     setCoupons(getCoupons())
+    setShippingOptions(getShippingOptions())
   }
 
   const handlePasswordChange = (e) => {
@@ -276,6 +285,63 @@ function Admin() {
     setEditingCoupon(null)
   }
 
+  // Shipping handlers
+  const handleShippingInputChange = (e) => {
+    const { name, value, type, checked } = e.target
+    setShippingFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }))
+  }
+
+  const handleShippingSubmit = (e) => {
+    e.preventDefault()
+    const shippingData = {
+      ...shippingFormData,
+      cost: parseFloat(shippingFormData.cost) || 0,
+      minOrderAmount: shippingFormData.minOrderAmount ? parseFloat(shippingFormData.minOrderAmount) : null,
+      maxOrderAmount: shippingFormData.maxOrderAmount ? parseFloat(shippingFormData.maxOrderAmount) : null,
+      isActive: shippingFormData.isActive !== undefined ? shippingFormData.isActive : true
+    }
+    if (editingShipping) {
+      updateShippingOption(editingShipping.id, shippingData)
+    } else {
+      addShippingOption(shippingData)
+    }
+    resetShippingForm()
+    loadAllData()
+  }
+
+  const handleShippingEdit = (shipping) => {
+    setEditingShipping(shipping)
+    setShippingFormData({
+      name: shipping.name || '',
+      cost: shipping.cost || '',
+      estimatedDays: shipping.estimatedDays || '',
+      minOrderAmount: shipping.minOrderAmount || '',
+      maxOrderAmount: shipping.maxOrderAmount || '',
+      isActive: shipping.isActive !== undefined ? shipping.isActive : true
+    })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const handleShippingDelete = (id) => {
+    if (window.confirm('Are you sure you want to delete this shipping option?')) {
+      deleteShippingOption(id)
+      loadAllData()
+      if (editingShipping && editingShipping.id === id) {
+        resetShippingForm()
+      }
+    }
+  }
+
+  const resetShippingForm = () => {
+    setShippingFormData({
+      name: '', cost: '', estimatedDays: '', minOrderAmount: '', maxOrderAmount: '', isActive: true
+    })
+    setEditingShipping(null)
+  }
+
   if (!isAuthenticated) {
     return <AdminLogin onLoginSuccess={handleLoginSuccess} />
   }
@@ -353,6 +419,12 @@ function Admin() {
           onClick={() => setActiveTab('coupons')}
         >
           🎫 Coupons ({coupons.length})
+        </button>
+        <button 
+          className={`admin-tab ${activeTab === 'shipping' ? 'active' : ''}`}
+          onClick={() => setActiveTab('shipping')}
+        >
+          🚚 Shipping ({shippingOptions.length})
         </button>
       </div>
 
@@ -648,6 +720,86 @@ function Admin() {
                     <div className="admin-product-actions">
                       <button onClick={() => handleCouponEdit(coupon)} className="btn-icon edit-btn" title="Edit">✏️</button>
                       <button onClick={() => handleCouponDelete(coupon.id)} className="btn-icon delete-btn" title="Delete">🗑️</button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Shipping Tab */}
+      {activeTab === 'shipping' && (
+        <div className="admin-container">
+          <div className="admin-form-section">
+            <div className="form-card">
+              <h2>{editingShipping ? 'Edit Shipping Option' : 'Add New Shipping Option'}</h2>
+              <form onSubmit={handleShippingSubmit} className="product-form">
+                <div className="form-group">
+                  <label htmlFor="shippingName">Shipping Name *</label>
+                  <input type="text" id="shippingName" name="name" value={shippingFormData.name} onChange={handleShippingInputChange} required placeholder="e.g., Standard Shipping" />
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="shippingCost">Cost ($) *</label>
+                    <input type="number" id="shippingCost" name="cost" value={shippingFormData.cost} onChange={handleShippingInputChange} required step="0.01" min="0" placeholder="5.99" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="estimatedDays">Estimated Days *</label>
+                    <input type="text" id="estimatedDays" name="estimatedDays" value={shippingFormData.estimatedDays} onChange={handleShippingInputChange} required placeholder="e.g., 5-7" />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group">
+                    <label htmlFor="minOrderAmount">Minimum Order Amount ($)</label>
+                    <input type="number" id="minOrderAmount" name="minOrderAmount" value={shippingFormData.minOrderAmount} onChange={handleShippingInputChange} step="0.01" min="0" placeholder="0 (no minimum)" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="maxOrderAmount">Maximum Order Amount ($)</label>
+                    <input type="number" id="maxOrderAmount" name="maxOrderAmount" value={shippingFormData.maxOrderAmount} onChange={handleShippingInputChange} step="0.01" min="0" placeholder="Leave empty for no limit" />
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label style={{display: 'flex', alignItems: 'center', gap: '0.5rem'}}>
+                    <input type="checkbox" id="shippingIsActive" name="isActive" checked={shippingFormData.isActive} onChange={handleShippingInputChange} />
+                    Active
+                  </label>
+                </div>
+                <div className="form-actions">
+                  <button type="submit" className="btn btn-primary">{editingShipping ? 'Update Shipping' : 'Add Shipping'}</button>
+                  {editingShipping && <button type="button" onClick={resetShippingForm} className="btn btn-secondary">Cancel</button>}
+                </div>
+              </form>
+            </div>
+          </div>
+          <div className="admin-products-section">
+            <h2>All Shipping Options ({shippingOptions.length})</h2>
+            {shippingOptions.length === 0 ? (
+              <div className="empty-products"><p>No shipping options yet. Add your first shipping option above! 🚚</p></div>
+            ) : (
+              <div className="admin-coupons-list">
+                {shippingOptions.map(shipping => (
+                  <div key={shipping.id} className={`admin-coupon-card ${!shipping.isActive ? 'inactive' : ''}`}>
+                    <div className="admin-coupon-header">
+                      <div>
+                        <h3 className="admin-coupon-code">{shipping.name}</h3>
+                        <p className="admin-coupon-discount">
+                          ${shipping.cost.toFixed(2)} • {shipping.estimatedDays} days
+                        </p>
+                      </div>
+                      <div className={`admin-coupon-status ${shipping.isActive ? 'active' : 'inactive'}`}>
+                        {shipping.isActive ? '✓ Active' : '✗ Inactive'}
+                      </div>
+                    </div>
+                    <div className="admin-coupon-details">
+                      {shipping.minOrderAmount && <p><strong>Min Order:</strong> ${shipping.minOrderAmount.toFixed(2)}</p>}
+                      {shipping.maxOrderAmount && <p><strong>Max Order:</strong> ${shipping.maxOrderAmount.toFixed(2)}</p>}
+                      <p className="admin-order-date"><strong>Created:</strong> {new Date(shipping.createdAt).toLocaleString()}</p>
+                    </div>
+                    <div className="admin-product-actions">
+                      <button onClick={() => handleShippingEdit(shipping)} className="btn-icon edit-btn" title="Edit">✏️</button>
+                      <button onClick={() => handleShippingDelete(shipping.id)} className="btn-icon delete-btn" title="Delete">🗑️</button>
                     </div>
                   </div>
                 ))}

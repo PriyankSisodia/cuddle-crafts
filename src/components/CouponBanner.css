@@ -31,12 +31,19 @@
   font-size: 1.2rem;
 }
 
+.coupon-slider-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
 .coupon-slider {
   display: flex;
   gap: 2rem;
-  overflow: hidden;
-  flex: 1;
-  position: relative;
+  width: fit-content;
+  animation: scroll 30s linear infinite;
+  will-change: transform;
 }
 
 .coupon-item {
@@ -44,11 +51,11 @@
   align-items: center;
   gap: 0.75rem;
   white-space: nowrap;
-  animation: scroll 15s linear infinite;
   padding: 0.25rem 1rem;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 20px;
   backdrop-filter: blur(5px);
+  flex-shrink: 0;
 }
 
 .coupon-code {
@@ -65,10 +72,10 @@
 
 @keyframes scroll {
   0% {
-    transform: translateX(100%);
+    transform: translateX(0);
   }
   100% {
-    transform: translateX(-100%);
+    transform: translateX(-33.333%);
   }
 }
 
@@ -91,8 +98,13 @@
     font-size: 1rem;
   }
 
+  .coupon-slider-wrapper {
+    width: 100%;
+  }
+
   .coupon-slider {
     gap: 1rem;
+    animation-duration: 25s;
   }
 
   .coupon-item {
@@ -122,6 +134,11 @@
 
   .coupon-banner-text {
     font-size: 0.75rem;
+  }
+
+  .coupon-slider {
+    gap: 0.75rem;
+    animation-duration: 20s;
   }
 
   .coupon-item {
